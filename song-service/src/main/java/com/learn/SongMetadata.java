@@ -20,7 +20,6 @@ public class SongMetadata {
     private String genre;
     @Pattern(regexp = "^(19|20)\\d{2}$", message = "Year must be in a YYYY format")
     private String year;
-    private Long resourceId;
     @NotNull(message = "Duration field cannot be null")
     @Pattern(regexp = "^([0-5]?[0-9]):([0-5][0-9])$", message = "Duration must be in format MM:SS")
     private String duration;
@@ -83,16 +82,6 @@ public class SongMetadata {
     public void setYear(String year) {
 
         this.year = year;
-    }
-
-    public Long getResourceId() {
-
-        return resourceId;
-    }
-
-    public void setResourceId(Long resourceId) {
-
-        this.resourceId = resourceId;
     }
 
     public String getDuration() {

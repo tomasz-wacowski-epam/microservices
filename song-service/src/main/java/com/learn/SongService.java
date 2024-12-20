@@ -38,22 +38,21 @@ public class SongService {
         song.setGenre(metadata.getGenre());
         song.setReleaseYear(metadata.getYear());
         song.setDuration(metadata.getDuration());
-        song.setResourceId(metadata.getResourceId());
         SongEntity songEntity = songRepository.save(song);
         return new SongCreationResponseDTO(songEntity.getId());
     }
 
-    public Optional<SongDTO> getSongById(Long id) {
+    public SongDTO getSongById(Long id) {
 
         Optional<SongEntity> optionalSongEntity = songRepository.findById(id);
 
         if (optionalSongEntity.isPresent()) {
             SongEntity songEntity = optionalSongEntity.get();
-            return Optional.of(new SongDTO(songEntity.getId(), songEntity.getTitle(), songEntity.getArtist(),
-                    songEntity.getAlbum(), songEntity.getDuration(), String.valueOf(songEntity.getReleaseYear())));
+            return new SongDTO(songEntity.getId(), songEntity.getTitle(), songEntity.getArtist(),
+                    songEntity.getAlbum(), songEntity.getDuration(), String.valueOf(songEntity.getReleaseYear()));
         }
 
-        throw new SongNotFoundException("Resource with id = " + id + " not found");
+        throw new SongNotFoundException("Song with id = " + id + " not found");
     }
 
     public SongRemoveResponseDTO deleteSongsByIds(String ids) {

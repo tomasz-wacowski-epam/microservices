@@ -107,19 +107,4 @@ public class SongEntity {
 
         this.duration = duration;
     }
-
-    @Override
-    public String toString() {
-
-        return "SongEntity{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", artist='" + artist + '\'' +
-                ", album='" + album + '\'' +
-                ", genre='" + genre + '\'' +
-                ", releaseYear=" + releaseYear +
-                ", resourceId=" + resourceId +
-                ", duration='" + duration + '\'' +
-                '}';
-    }
 }

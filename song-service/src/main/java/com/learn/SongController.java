@@ -1,7 +1,5 @@
 package com.learn;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,22 +27,19 @@ public class SongController {
     @GetMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<SongDTO> getSong(@PathVariable("id") Long id) {
 
-        Optional<SongDTO> song = songService.getSongById(id);
-        return song.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(songService.getSongById(id));
     }
 
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<SongCreationResponseDTO> saveMetadata(@Valid @RequestBody SongMetadata metadata) {
 
-        SongCreationResponseDTO response = songService.saveMetadata(metadata);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(songService.saveMetadata(metadata));
     }
 
     @DeleteMapping(produces = "application/json")
     public ResponseEntity<SongRemoveResponseDTO> removeSongs(@RequestParam("id") String ids) {
 
-        SongRemoveResponseDTO removedSongsIds = songService.deleteSongsByIds(ids);
-        return ResponseEntity.ok(removedSongsIds);
+        return ResponseEntity.ok(songService.deleteSongsByIds(ids));
     }
 
     @GetMapping("/ping")

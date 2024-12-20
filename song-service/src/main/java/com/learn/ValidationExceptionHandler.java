@@ -36,7 +36,9 @@ public class ValidationExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleValidationException() {
 
         return ResponseEntity.badRequest()
-                .body(new ErrorResponseDTO("Bad request", HttpStatus.BAD_REQUEST.value()));
+                .body(new ErrorResponseDTO(
+                        "Wrong number format in csv file request parameter. Only comma separated positive integers allowed.",
+                        HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -50,7 +52,8 @@ public class ValidationExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponseDTO("Bad request", HttpStatus.BAD_REQUEST.value(), errors));
+                .body(new ErrorResponseDTO("Incorrect song metadata. Check \"details\" for explanation.",
+                        HttpStatus.BAD_REQUEST.value(), errors));
     }
 
     @ExceptionHandler(SongAlreadyExistException.class)

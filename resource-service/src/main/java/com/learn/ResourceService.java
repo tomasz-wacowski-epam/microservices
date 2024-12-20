@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 import com.learn.exceptions.InvalidCsvException;
+import com.learn.exceptions.ParseResourceException;
 import com.learn.exceptions.ResourceNotFoundException;
 import com.learn.exceptions.WrongIdException;
 import com.learn.responses.ResourceCreationResponseDTO;
@@ -24,11 +25,12 @@ import com.learn.responses.ResourceRemoveResponseDTO;
 @Service
 public class ResourceService {
 
-    public static final int SECONDS_PER_MINUTE = 60;
     private static final int MAX_CSV_LENGTH = 200;
+    public static final int SECONDS_PER_MINUTE = 60;
+    public static final int MINIMUM_ID_VALUE = 1;
     public static final String NO_DURATION = "00:00";
     public static final String SEPARATOR = ",";
-    public static final int MINIMUM_ID_VALUE = 1;
+    public static final String PARSE_EXCEPTION_MESSAGE = "It was not possible to correctly parse uploaded file";
 
     @Autowired
     private ResourceRepository resourceRepository;
@@ -36,7 +38,7 @@ public class ResourceService {
     @Autowired
     private SongServiceClient songServiceClient;
 
-    public ResourceCreationResponseDTO saveFile(byte[] file) throws IOException, TikaException, SAXException {
+    public ResourceCreationResponseDTO saveFile(byte[] file) {
 
         Metadata metadata = new Metadata();
         BodyContentHandler handler = new BodyContentHandler();
@@ -45,7 +47,10 @@ public class ResourceService {
 
         try (var inputStream = new ByteArrayInputStream(file)) {
             mp3Parser.parse(inputStream, handler, metadata, parseContext);
+        } catch (IOException | TikaException | SAXException e) {
+            throw new ParseResourceException(PARSE_EXCEPTION_MESSAGE);
         }
+
         String title = metadata.get("dc:title");
         String artist = metadata.get("xmpDM:artist");
         String album = metadata.get("xmpDM:album");
@@ -56,19 +61,23 @@ public class ResourceService {
         ResourceEntity resourceEntity = new ResourceEntity(file, metadata.get("Content-Type"));
         resourceEntity = resourceRepository.save(resourceEntity);
 
+        Long resourceId = resourceEntity.getId();
+        if (resourceId == null) {
+            throw new ParseResourceException(PARSE_EXCEPTION_MESSAGE);
+        }
+
         SongMetadata songMetadata = new SongMetadata();
-        songMetadata.setId(resourceEntity.getId());
+        songMetadata.setId(resourceId);
         songMetadata.setName(title != null ? title : "Unknown title");
         songMetadata.setArtist(artist != null ? artist : "Unknown artist");
         songMetadata.setAlbum(album != null ? album : "Unknown album");
         songMetadata.setGenre(genre != null ? genre : "Unknown genre");
         songMetadata.setDuration(duration);
         songMetadata.setYear(releaseYear != null ? releaseYear : "Unknown year");
-        songMetadata.setResourceId(resourceEntity.getId());
 
         songServiceClient.saveMetadata(songMetadata);
 
-        return new ResourceCreationResponseDTO(resourceEntity.getId());
+        return new ResourceCreationResponseDTO(resourceId);
 
     }
 
@@ -89,7 +98,7 @@ public class ResourceService {
     public byte[] getResourceById(Long id) {
 
         if (id < MINIMUM_ID_VALUE) {
-            throw new WrongIdException();
+            throw new WrongIdException("ID needs to be a positive integer.");
         }
 
         Optional<ResourceEntity> resourceEntity = resourceRepository.findById(id);

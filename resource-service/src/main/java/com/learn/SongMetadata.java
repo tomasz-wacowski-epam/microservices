@@ -8,7 +8,6 @@ public class SongMetadata {
     private String album;
     private String genre;
     private String year;
-    private Long resourceId;
     private String duration;
 
     public Long getId() {
@@ -69,16 +68,6 @@ public class SongMetadata {
     public void setYear(String year) {
 
         this.year = year;
-    }
-
-    public Long getResourceId() {
-
-        return resourceId;
-    }
-
-    public void setResourceId(Long resourceId) {
-
-        this.resourceId = resourceId;
     }
 
     public String getDuration() {
